@@ -1,13 +1,8 @@
 ﻿using Models;
+using Controller;
 string path = @"C:\Users\L.Veronezzi\AquivosJson\";
 string file = "radar.json";
 
+var controller = new PersistController();   
 
-var lst = ReadFile.GetData(path, file);
-
-foreach (var item in lst)
-{
-    Console.WriteLine(item);
-}
-Console.WriteLine(lst.Count());
-Console.ReadKey();
+int number = controller.InsertInSql(path, file);

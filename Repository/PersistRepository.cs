@@ -20,27 +20,44 @@ namespace Repository
 
         public int InsertInSql(string path, string file)
         {
-            var list = ReadFile.GetData(path, file);
-            string sql = "INSERT INTO Infracoes VALUES ";
-            if (list == null) return 0;
-            if (list.Count == 1)
-                {
-                sql += $"('{list[0].Concessionaria}', '{list[0].AnoDoPnvSnv}', '{list[0].TipoDeRadar}', '{list[0].Rodovia}', '{list[0].Uf}', '{list[0].KmM}, " +
-                    $"{list[0].Municipio}, {list[0].TipoPista}, {list[0].Sentido}, {list[0].Situacao}, {list[0].Latitude}, {list[0].Longitude}, {list[0].VelocidadeLeve} ')";
-            }
-            else
+            try
             {
-                foreach (var item in list)
+                var list = ReadFile.GetData(path, file);
+                string sql = "INSERT INTO TB_Infracao (Concessionaria, AnoDoPnvSnv, TipoDeRadar, Rodovia, Uf, KmM, Municipio, Sentido, Situacao ,TipoPista, DataInativacao, Latitude, Longitude, VelocidadeLeve) VALUES ";
+                if (list == null) return 0;
+                if (list.Count == 1)
                 {
-                    if(item != list.Last())
-                        sql += $"('{item.Concessionaria}', '{item.AnoDoPnvSnv}', '{item.TipoDeRadar}', '{item.Rodovia}', '{item.Uf}', '{item.KmM}, " +
-                    $"{item.Municipio}, {item.TipoPista}, {item.Sentido}, {item.Situacao}, {item.Latitude}, {item.Longitude}, {item.VelocidadeLeve} ')";
-                    else
-                        sql += $"('{item.Concessionaria}', '{item.AnoDoPnvSnv}', '{item.TipoDeRadar}', '{item.Rodovia}', '{item.Uf}', '{item.KmM}, " +
-                    $"{item.Municipio}, {item.TipoPista}, {item.Sentido}, {item.Situacao}, {item.Latitude}, {item.Longitude}, {item.VelocidadeLeve} ')";
+                    sql += $"('{list[0].Concessionaria}', {int.Parse(list[0].AnoDoPnvSnv)}, '{list[0].TipoDeRadar}', '{list[0].Rodovia}', '{list[0].Uf}', {list[0].KmM.Replace(',', '.')}, " +
+                        $"{double.Parse(list[0].Municipio)},'{list[0].Sentido}', '{list[0].Situacao}', '{list[0].TipoPista}',null , '{list[0].Latitude}', '{list[0].Longitude}', {(list[0].VelocidadeLeve)} )";
                 }
+                else
+                {
+                    foreach (var item in list)
+                    {
+                        if (item != list.Last())
+                            sql += $"('{item.Concessionaria}', {int.Parse(item.AnoDoPnvSnv)}, '{item.TipoDeRadar}', '{item.Rodovia}', '{item.Uf}', {item.KmM.Replace(',', '.')}, " +
+                        $"'{item.Municipio}', '{item.Sentido}', '{item.Situacao}', '{item.TipoPista}',null ,'{item.Latitude}', '{item.Longitude}', {double.Parse(item.VelocidadeLeve)} ),";
+                        else
+                            sql += $"('{item.Concessionaria}', {int.Parse(item.AnoDoPnvSnv)}, '{item.TipoDeRadar}', '{item.Rodovia}', '{item.Uf}', {item.KmM.Replace(',','.')}, " +
+                        $"'{item.Municipio}', '{item.Sentido}', '{item.Situacao}', '{item.TipoPista}' ,null ,'{item.Latitude}', '{item.Longitude}', {item.VelocidadeLeve} )";
+                    }
+                }
+                SqlCommand command = new SqlCommand(sql, connection);
+                command.Connection = connection;
+                command.ExecuteNonQuery();
+                Console.WriteLine($"Success data insertion, number of data: {list.Count()}");
+
+                return list.Count;
             }
-            return list.Count;
-        }
+            catch (Exception)
+            {                
+                Console.WriteLine("Insert error");
+                return 0;
+            }
+            finally
+            {
+                connection.Close();
+            }
+        }                        
     }
 }
