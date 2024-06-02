@@ -1,5 +1,7 @@
 ﻿using System.Text.Json.Serialization;
+using MongoDB.Bson;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Bson;
 
 namespace Models
 {
